@@ -123,10 +123,14 @@ window.addEventListener("load", () => {
   // (e.g. the GROW letters vs. the work rail cards) never share an
   // index and step on each other's delays.
   const groups = [
-    // Work rail cards get a bigger gap between them so they clearly
-    // appear one after another instead of overlapping.
+    // Work rail cards (homepage) all appear together in one viewport, so
+    // they need an index-based stagger to cascade one after another.
     { selector: ".work-item", step: 220 },
-    { selector: ".featured-work-item", step: 220 },
+    // Work-page series list cards each scroll into view independently at
+    // their own time, so no extra delay is added on top of that natural
+    // stagger — otherwise later cards finish revealing well after they've
+    // already scrolled into view and the wipe goes unseen.
+    { selector: ".featured-work-item", step: 0 },
     { selector: ".about-title", step: 90 },
     { selector: ".story-title, .my-story-paragraph", step: 90 },
     { selector: ".project-hero-image-holder", step: 90 },
