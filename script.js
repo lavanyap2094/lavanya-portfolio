@@ -99,18 +99,38 @@ window.addEventListener("load", () => {
 
 // Scroll reveal animations for project pages
 (function () {
-  const targets = document.querySelectorAll(
-    ".project-hero-image-holder, .project-info, .project-name-wrapper:not(.sticky), .project-gallery img, .project-body h3, .project-body p, .work-item, .featured-work-item, .about-title"
-  );
-  if (!targets.length) return;
+  // Each selector gets its own stagger count, so unrelated groups
+  // (e.g. the GROW letters vs. the work rail cards) never share an
+  // index and step on each other's delays.
+  const groups = [
+    // Work rail cards get a bigger gap between them so they clearly
+    // appear one after another instead of overlapping.
+    { selector: ".work-item", step: 220 },
+    { selector: ".featured-work-item", step: 220 },
+    { selector: ".about-title", step: 90 },
+    { selector: ".story-title, .my-story-paragraph", step: 90 },
+    { selector: ".project-hero-image-holder", step: 90 },
+    { selector: ".project-info", step: 90 },
+    { selector: ".project-name-wrapper:not(.sticky)", step: 90 },
+    { selector: ".project-gallery img", step: 90 },
+    { selector: ".project-body h3", step: 90 },
+    { selector: ".project-body p", step: 90 },
+    { selector: ".footer-contact, .footer-info-holder", step: 90 },
+  ];
 
-  targets.forEach((el, i) => {
-    el.classList.add("reveal");
-    el.style.transitionDelay = `${Math.min(i % 8, 8) * 70}ms`;
+  const allTargets = [];
+  groups.forEach(({ selector, step }) => {
+    document.querySelectorAll(selector).forEach((el, i) => {
+      el.classList.add("reveal");
+      el.style.transitionDelay = `${Math.min(i, 8) * step}ms`;
+      allTargets.push(el);
+    });
   });
 
+  if (!allTargets.length) return;
+
   if (!("IntersectionObserver" in window)) {
-    targets.forEach((el) => el.classList.add("revealed"));
+    allTargets.forEach((el) => el.classList.add("revealed"));
     return;
   }
 
@@ -126,6 +146,6 @@ window.addEventListener("load", () => {
     { threshold: 0.15, rootMargin: "0px 0px -60px 0px" }
   );
 
-  targets.forEach((el) => observer.observe(el));
+  allTargets.forEach((el) => observer.observe(el));
 })();
 
