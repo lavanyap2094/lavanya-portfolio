@@ -16,6 +16,26 @@ if (line1 && line2) {
   splitToLetters(line2, "Pulijala");
 }
 
+// Mobile menu toggle
+(function () {
+  const menuButton = document.querySelector(".menu-button");
+  const navbar = document.querySelector(".navbar");
+  const menuText = menuButton && menuButton.querySelector(".menu-text");
+  if (!menuButton || !navbar) return;
+
+  menuButton.addEventListener("click", () => {
+    const isOpen = navbar.classList.toggle("menu-open");
+    if (menuText) menuText.textContent = isOpen ? "Close" : "Menu";
+  });
+
+  navbar.querySelectorAll(".nav-link-big").forEach((link) => {
+    link.addEventListener("click", () => {
+      navbar.classList.remove("menu-open");
+      if (menuText) menuText.textContent = "Menu";
+    });
+  });
+})();
+
 // Trigger reveal shortly after load
 window.addEventListener("load", () => {
   requestAnimationFrame(() => {
