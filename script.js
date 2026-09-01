@@ -36,6 +36,39 @@ if (line1 && line2) {
   });
 })();
 
+// Smooth-scroll to in-page anchors (e.g. "About"). Closing the mobile menu
+// shifts the page layout at the exact moment the browser tries to jump to
+// the anchor, which was causing the scroll to get cancelled/skipped
+// entirely on mobile. Handling the scroll manually, after the menu-close
+// layout shift has settled, fixes that. Cross-page links (e.g. from
+// work.html to index.html#about) land at the very top first, then glide
+// down to the section, instead of snapping straight to it on page load.
+(function () {
+  function scrollToHash(hash) {
+    const target = document.querySelector(hash);
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.querySelectorAll('a[href^="#"], a[href*=".html#"]').forEach((link) => {
+    const url = new URL(link.getAttribute("href"), window.location.href);
+    const isSamePage = url.pathname === window.location.pathname;
+    if (!isSamePage || !url.hash) return;
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      setTimeout(() => scrollToHash(url.hash), 50);
+    });
+  });
+
+  if (window.location.hash) {
+    const hash = window.location.hash;
+    window.scrollTo(0, 0);
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+    window.addEventListener("load", () => {
+      setTimeout(() => scrollToHash(hash), 700);
+    });
+  }
+})();
+
 // Trigger reveal shortly after load
 window.addEventListener("load", () => {
   requestAnimationFrame(() => {
@@ -171,5 +204,22 @@ window.addEventListener("load", () => {
   );
 
   allTargets.forEach((el) => observer.observe(el));
+
+  // Safety net: some mobile browsers can miss IntersectionObserver updates
+  // during fast flick-scrolling inside a horizontally-scrolling container
+  // (like the work rail), leaving a card stuck invisible forever. Directly
+  // check visibility on scroll as a backup so nothing gets permanently stuck.
+  document.querySelectorAll(".work-list-wrapper").forEach((wrapper) => {
+    const checkVisible = () => {
+      wrapper.querySelectorAll(".reveal:not(.revealed)").forEach((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.right > 0 && r.left < window.innerWidth && r.bottom > 0 && r.top < window.innerHeight) {
+          el.classList.add("revealed");
+        }
+      });
+    };
+    wrapper.addEventListener("scroll", checkVisible, { passive: true });
+    window.addEventListener("scroll", checkVisible, { passive: true });
+  });
 })();
 
