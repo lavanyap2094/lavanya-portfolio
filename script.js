@@ -16,6 +16,16 @@ if (line1 && line2) {
   splitToLetters(line2, "Pulijala");
 }
 
+// Fade out hero scroll cue once the user starts scrolling
+(function () {
+  const cue = document.getElementById("heroScrollCue");
+  if (!cue) return;
+  const onScroll = () => {
+    cue.classList.toggle("hidden", window.scrollY > 40);
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+})();
+
 // Mobile menu toggle
 (function () {
   const menuButton = document.querySelector(".menu-button");
